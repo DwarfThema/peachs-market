@@ -1,44 +1,56 @@
-import FormButton from "@/components/form-button";
-import FormInput from "@/components/form-input";
+"use client";
+
+import Button from "@/components/button";
+import Input from "@/components/input";
 import SocialLogin from "@/components/social-login";
+import { useFormState } from "react-dom";
+import { createAccount } from "./action";
 
 export default function CreateAccount() {
+  const [state, dispatch] = useFormState(createAccount, null);
+  //createAccount가 서버에서 동작한 return값을 state에서 확인 할 수 있다.
+  //해당 state를 이용해서 error 메세지등을 넣을 수 있음
+
   return (
     <div className="flex flex-col gap-10 py-8 px-6">
       <div className="flex flex-col gap-2 *:font-medium">
         <h1>안녕하세요!</h1>
         <h2>Fill in the form below to join!</h2>
       </div>
-      <form className="flex flex-col gap-3">
-        <FormInput
+      <form action={dispatch} className="flex flex-col gap-3">
+        <Input
           name="username"
           type="text"
           placeholder="userName"
           required
-          error={[]}
+          errors={state?.fieldErrors.username}
+          minLength={3}
+          maxLength={10}
         />
-        <FormInput
+        <Input
           name="email"
           type="email"
           placeholder="Email"
           required
-          error={[]}
-        />{" "}
-        <FormInput
+          errors={state?.fieldErrors.email}
+        />
+        <Input
           name="password"
           type="password"
           placeholder="Password"
           required
-          error={[]}
-        />{" "}
-        <FormInput
-          name="confirmPassword"
+          errors={state?.fieldErrors.password}
+          minLength={4}
+        />
+        <Input
+          name="confirm_password"
           type="password"
           placeholder="Confirm Password"
           required
-          error={[]}
+          errors={state?.fieldErrors.confirm_password}
+          minLength={4}
         />
-        <FormButton text="Create Account" />
+        <Button text="Create Account" />
       </form>
       <SocialLogin />
     </div>
