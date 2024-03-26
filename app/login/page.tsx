@@ -5,12 +5,11 @@ import Input from "@/components/input";
 import SocialLogin from "@/components/social-login";
 import { redirect } from "next/navigation";
 import { useFormState } from "react-dom";
-import { handleForm } from "./action";
+import { login } from "./action";
+import { PASSWORD_MIN_LENGTH } from "@/lib/constants";
 
 export default function LogIn() {
-  const [state, action] = useFormState(handleForm, {
-    initialValue: "테스트용 초기 값",
-  } as any);
+  const [state, dispatch] = useFormState(login, null);
   // useFormStae는 form의 상태를 컨트롤 할 수 있는 react dom hook이다.
   // state는 현 상태를 보여주고, action은 form에 붙여주면된다.
   // 1st arg는 handleForm은 실제 실행시킬 실제 함수이며, 2nd arg는 initial value이다.
@@ -22,14 +21,21 @@ export default function LogIn() {
         <h1>안녕하세요!</h1>
         <h2>Login with email and password.</h2>
       </div>
-      <form action={action} className="flex flex-col gap-3">
-        <Input name="email" type="email" placeholder="Email" required />
+      <form action={dispatch} className="flex flex-col gap-3">
+        <Input
+          name="email"
+          type="email"
+          placeholder="Email"
+          required
+          errors={state?.fieldErrors.email}
+        />
         <Input
           name="password"
           type="password"
           placeholder="Password"
           required
-          errors={state?.error ?? []}
+          minLength={PASSWORD_MIN_LENGTH}
+          errors={state?.fieldErrors.password}
         />
         <Button text="Create Account" />
       </form>

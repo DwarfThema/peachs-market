@@ -1,0 +1,45 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+//prisma를 만들기 위해서는 px prisma init부터 시작해야한다
+//생성된 .env를 반드시 gitignore에 넣어야 함!
+datasource db {
+  provider = "sqlite" //sqlite를 사용하면 로컬에 간단히 디비를 만들 수 있음
+  url      = env("DATABASE_URL")
+}
+
+//다 만들거나 수정했으면 npx prisma migrate dev를 해서 푸쉬를 하자.
+//추가 했으면 name을 "add_user"와같은 이름으로 규칙을 정해서 migrate하자
+//db가 만들어졌으면 gitignore에  "*.db"를 추가하자
+//npx prisma studio로 내용을 확인하자.
+
+model User {
+  id         Int        @id @default(autoincrement())
+  username   String     @unique
+  email      String?    @unique
+  phone      String?    @unique
+  password   String?
+  github_id  String?    @unique
+  avatar     String?    @default("") //기본 아바타의 url을 넣을 수 있다.
+  created_at DateTime   @default(now())
+  updated_at DateTime   @updatedAt
+  SMSToken   SMSToken[]
+}
+
+model SMSToken {
+  id         Int      @id @default(autoincrement())
+  token      String   @unique
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  //relation으로 연결. User와 같이 연결할걸 type으로 적고 저장하면 알아서 다 만들어준다.
+  //relation은 실제로 만들어지는 데이터가아닌 userId에게 어디서 user를 찾으라는걸 알려주는 필드이다.
+  //relation을 사용하면 studio에서 삭제 할 수 없다. relation의 경로를 잃기 때문
+  //그러기에 onDelete를 사용해줘야한다. onDelete는 relation이 깨졌을때의 옵션을 정할 수 있다.
+  //onDelete : Cascade는 User가 삭제될 때 relation된 토큰도 같이 지워진다는 말
+  //onDelete : SetNull은 USer가 삭제될 때 null로 만드는 것
+  //onDelete : Restrict User가 삭제됨을 감지했을 때 삭제되지 못하게 막는것
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId Int
+}

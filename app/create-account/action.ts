@@ -1,10 +1,11 @@
 "use server";
 
+import {
+  PASSWORD_MIN_LENGTH,
+  PASSWORD_REGEX,
+  PASSWORD_REGEX_ERROR,
+} from "@/lib/constants";
 import { z } from "zod";
-
-const passwordRegex = new RegExp(
-  /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).+$/
-);
 
 const checkUserName = (username: string) =>
   !username.includes("나쁜욕") ? true : false;
@@ -41,12 +42,12 @@ const formSchema = z
         //refine에서 false를 반환하면 2번째 arg가 에러 메세지로 나가게 된다.
       ),
     email: z.string().email().trim().toLowerCase(),
-    password: z.string().min(10).regex(
-      passwordRegex,
-      "비밀번호는 반드시 대소문자와 숫자, 특수문자를 포함해야 합니다."
+    password: z.string().min(PASSWORD_MIN_LENGTH).regex(
+      PASSWORD_REGEX,
+      PASSWORD_REGEX_ERROR
       //정규식을 사용하고 싶을때는 위와같이 regex를 사용하면된다.
     ),
-    confirm_password: z.string().min(10),
+    confirm_password: z.string().min(PASSWORD_MIN_LENGTH),
   })
   .refine(checkPassword, {
     message: "비밀번호와 비밀번호 확인이 일치하지 않습니다.",
