@@ -42,6 +42,7 @@ export default async function Life() {
           key={post.id}
           href={`/posts/${post.id}`}
           className="pb-5 mb-5 border-b border-neutral-500 text-neutral-400 flex  flex-col gap-2 last:pb-0 last:border-b-0"
+          // last를 넣으면 마지막 놈한테만 따로 할당할 수 있다.
         >
           <h2 className="text-white text-lg font-semibold">{post.title}</h2>
           <p>{post.description}</p>
