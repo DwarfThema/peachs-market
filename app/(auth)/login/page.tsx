@@ -37,7 +37,7 @@ export default function LogIn() {
           minLength={PASSWORD_MIN_LENGTH}
           errors={state?.fieldErrors.password}
         />
-        <Button text="Create Account" />
+        <Button text="Log in" />
       </form>
       <SocialLogin />
     </div>

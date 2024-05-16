@@ -2,7 +2,7 @@ generator client {
   provider = "prisma-client-js"
 }
 
-//prisma를 만들기 위해서는 px prisma init부터 시작해야한다
+//prisma를 만들기 위해서는 npx prisma init부터 시작해야한다
 //생성된 .env를 반드시 gitignore에 넣어야 함!
 datasource db {
   provider = "sqlite" //sqlite를 사용하면 로컬에 간단히 디비를 만들 수 있음
@@ -25,6 +25,10 @@ model User {
   created_at DateTime   @default(now())
   updated_at DateTime   @updatedAt
   SMSToken   SMSToken[]
+  Product    Product[]
+  Post       Post[]
+  Comment    Comment[]
+  Like       Like[]
 }
 
 model SMSToken {
@@ -43,3 +47,57 @@ model SMSToken {
   user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId Int
 }
+
+model Product {
+  id          Int      @id @default(autoincrement())
+  title       String
+  price       Float
+  description String
+  photo       String
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      Int
+}
+
+model Post {
+  id          Int       @id @default(autoincrement())
+  title       String
+  description String?
+  views       Int       @default(0)
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      Int
+  comments    Comment[]
+  likes       Like[]
+}
+
+model Comment {
+  id         Int      @id @default(autoincrement())
+  payload    String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post       Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  //연결되어있는 건 모두 cascade해줘야한다.
+  userId     Int
+  postId     Int
+}
+
+model Like {
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post       Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId     Int
+  postId     Int
+
+  @@id(name: "id", [userId, postId])
+}
+
+//@@id(name: "id", [userId, postId]) 에 대해..
+// 위와같이 id를 정하는건 콤비네이션에 대한 Id를 정하는 것이다
+// 생각해보면 UserID와 PostID의 조합으로만 해당 Like를 정의 할 수 있는것이다.
+// user는 post하나당 하나의 like만 할 수 있기에 unique하다.
+// 해당 콤비네이션 자체를 유니크하게 하기 위해 위와같이 userId와 postID를 묶어서 Id로 할당한다.
