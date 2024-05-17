@@ -5,7 +5,7 @@ import { UserIcon } from "@heroicons/react/24/solid";
 import { unstable_cache } from "next/cache";
 import Image from "next/image";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
 export const dynamicParams = true;
 //기본적으로 true지만 false가 되면 정말 static페이지가 되어서 데이터를 갖고오질 못한다.
@@ -47,6 +47,30 @@ export default async function ProductDetail({
   }
   const isOwner = await getIsOwner(product.userId);
 
+  const createChatRoom = async () => {
+    "use server";
+    const session = await getSession();
+
+    const room = await db.chatRoom.create({
+      data: {
+        users: {
+          connect: [
+            {
+              //첫번째ㅐ로 연결해야하는 유저는 해당 프로덕트의 주인임
+              id: product.userId,
+            },
+            {
+              //로그인한사람의 아이디
+              id: session.id,
+            },
+          ],
+        },
+      },
+    });
+
+    redirect(`/chats/${room.id}`);
+  };
+
   return (
     <div>
       <div className="relative aspect-square">
@@ -87,12 +111,11 @@ export default async function ProductDetail({
             Delete product
           </button>
         ) : null}
-        <Link
-          className="bg-orange-500 px-5 py-2.5 rounded-md text-white font-semibold"
-          href={``}
-        >
-          채팅하기
-        </Link>
+        <form action={createChatRoom}>
+          <button className="bg-orange-500 px-5 py-2.5 rounded-md text-white font-semibold">
+            채팅하기
+          </button>
+        </form>
       </div>
     </div>
   );

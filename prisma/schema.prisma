@@ -18,17 +18,19 @@ model User {
   id         Int        @id @default(autoincrement())
   username   String     @unique
   email      String?    @unique
-  phone      String?    @unique
   password   String?
+  phone      String?    @unique
   github_id  String?    @unique
-  avatar     String?    @default("") //기본 아바타의 url을 넣을 수 있다.
+  avatar     String?
   created_at DateTime   @default(now())
   updated_at DateTime   @updatedAt
-  SMSToken   SMSToken[]
-  Product    Product[]
-  Post       Post[]
-  Comment    Comment[]
-  Like       Like[]
+  tokens     SMSToken[]
+  products   Product[]
+  posts      Post[]
+  comments   Comment[]
+  likes      Like[]
+  chat_rooms ChatRoom[]
+  messages   Message[]
 }
 
 model SMSToken {
@@ -101,3 +103,23 @@ model Like {
 // 생각해보면 UserID와 PostID의 조합으로만 해당 Like를 정의 할 수 있는것이다.
 // user는 post하나당 하나의 like만 할 수 있기에 unique하다.
 // 해당 콤비네이션 자체를 유니크하게 하기 위해 위와같이 userId와 postID를 묶어서 Id로 할당한다.
+
+model ChatRoom {
+  id         String    @id @default(cuid())
+  //보안상의 이유로 String을 쓴다. 또한 autoincrement가 아닌 cuid를 쓴다.
+  users      User[]
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  messages   Message[]
+}
+
+model Message {
+  id         Int      @id @default(autoincrement())
+  payload    String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  room       ChatRoom @relation(fields: [chatRoomId], references: [id])
+  user       User     @relation(fields: [userId], references: [id])
+  chatRoomId String
+  userId     Int
+}
