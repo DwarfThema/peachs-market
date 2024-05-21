@@ -1,5 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  experimental: {
+    taint: true,
+  },
   images: {
     domains: ["imagedelivery.net"],
     remotePatterns: [
